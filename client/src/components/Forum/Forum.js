@@ -1,298 +1,344 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { PlusIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
-import { forumAPI } from '../../utils/api';
-import { useTranslation } from '../../hooks/useTranslation';
-import Button from '../UI/Button';
-import { renderMath } from '../../utils/mathjax';
+import React, { useState } from 'react';
+import { Send, User, MessageSquare, Menu, Plus } from 'lucide-react';
+import './SinhalaChatForm.css';
 
 const Forum = ({ user }) => {
-  const { t } = useTranslation();
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({
-    topic: '',
-    search: ''
-  });
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [message, setMessage] = useState('');
+  const [sinhalaEnabled, setSinhalaEnabled] = useState(true);
+  const [theme, setTheme] = useState('light');
+  const [language, setLanguage] = useState('si');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [chatHistory, setChatHistory] = useState([
+    { id: 1, title: 'ආයුබෝවන් සංවාදය', date: 'අද', messages: [] }
+  ]);
+  const [currentChatId, setCurrentChatId] = useState(1);
 
-  useEffect(() => {
-    fetchPosts();
-  }, [filters]);
+  const [messages, setMessages] = useState([
+    { id: 1, type: 'received', text: 'ආයුබෝවන්! මට ඔබට ගණිත ප්‍රශ්න වලට උදව් කළ හැකිය. ප්‍රශ්නයක් අහන්න!' },
+  ]);
 
-  const fetchPosts = async () => {
+  // Function to call Groq backend
+  const getGeminiResponse = async (userQuestion) => {
     try {
-      const params = {};
-      if (filters.topic) params.topic = filters.topic;
-      if (filters.search) params.search = filters.search;
+      setIsLoading(true);
+      console.log('📤 Sending question to backend:', userQuestion);
 
-      const response = await forumAPI.getPosts(params);
-      if (response.data.success) {
-        setPosts(response.data.posts);
-      }
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const topics = ['', 'algebra', 'geometry', 'trigonometry', 'statistics', 'general'];
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl">{t('common.loading')}</div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('forum.discussionForum')}</h1>
-        <Button
-          onClick={() => setShowCreateForm(!showCreateForm)}
-          variant="primary"
-          className="flex items-center"
-        >
-          <PlusIcon className="h-5 w-5 mr-2" />
-          {t('forum.newPost')}
-        </Button>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white rounded-xl shadow-lg p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t('forum.filterByTopic')}
-            </label>
-            <select
-              value={filters.topic}
-              onChange={(e) => setFilters({ ...filters, topic: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500"
-            >
-              {topics.map(topic => (
-                <option key={topic} value={topic}>
-                  {topic || t('forum.allTopics')}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t('common.search')}
-            </label>
-            <input
-              type="text"
-              placeholder={t('forum.searchPosts')}
-              value={filters.search}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Create Post Form */}
-      {showCreateForm && (
-        <CreatePostForm
-          onSuccess={() => {
-            setShowCreateForm(false);
-            fetchPosts();
-          }}
-          onCancel={() => setShowCreateForm(false)}
-        />
-      )}
-
-      {/* Posts List */}
-      <div className="space-y-4">
-        {posts.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-            <ChatBubbleLeftRightIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">{t('forum.noPosts')}</p>
-          </div>
-        ) : (
-          posts.map(post => (
-            <ForumPostCard key={post._id} post={post} />
-          ))
-        )}
-      </div>
-    </div>
-  );
-};
-
-const CreatePostForm = ({ onSuccess, onCancel }) => {
-  const { t } = useTranslation();
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    latexContent: '',
-    topic: 'general',
-    tags: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      const response = await forumAPI.createPost({
-        ...formData,
-        tags: formData.tags.split(',').map(t => t.trim()).filter(t => t)
+      const res = await fetch('http://localhost:5000/api/gemini', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ question: userQuestion }),
       });
 
-      if (response.data.success) {
-        onSuccess();
+      console.log('📥 Response status:', res.status);
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error('❌ Backend error:', errorData);
+        throw new Error(errorData.error || 'Backend Error');
       }
+
+      const data = await res.json();
+      console.log('✅ Received answer:', data.answer.substring(0, 100) + '...');
+      
+      return data.answer;
+      
     } catch (err) {
-      setError(err.response?.data?.message || t('errors.somethingWentWrong'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('forum.createNewPost')}</h2>
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">{t('forum.title')}</label>
-          <input
-            type="text"
-            required
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">{t('forum.topic')}</label>
-          <select
-            value={formData.topic}
-            onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500"
-          >
-            <option value="algebra">{t('forum.algebra') || 'Algebra'}</option>
-            <option value="geometry">{t('forum.geometry') || 'Geometry'}</option>
-            <option value="trigonometry">{t('forum.trigonometry') || 'Trigonometry'}</option>
-            <option value="statistics">{t('forum.statistics') || 'Statistics'}</option>
-            <option value="general">{t('forum.general') || 'General'}</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t('forum.content')}
-          </label>
-          <textarea
-            rows={6}
-            required
-            value={formData.content}
-            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500"
-            placeholder={t('forum.contentPlaceholder') || "Type your question or discussion here. Use $ for math equations, e.g., $x^2 + 5x + 6 = 0$"}
-          />
-        </div>
-        <div className="flex justify-end gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={loading}
-          >
-            {loading ? t('forum.posting') : t('forum.post')}
-          </Button>
-        </div>
-      </form>
-    </div>
-  );
-};
-
-const ForumPostCard = ({ post }) => {
-  const { t } = useTranslation();
-  const [liked, setLiked] = useState(post.likes?.includes(post.userId?._id) || false);
-  const [likesCount, setLikesCount] = useState(post.likes?.length || 0);
-
-  const handleLike = async () => {
-    try {
-      const response = await forumAPI.likePost(post._id);
-      if (response.data.success) {
-        setLiked(response.data.liked);
-        setLikesCount(response.data.likesCount);
+      console.error('❌ Error calling backend:', err);
+      
+      if (err.message.includes('Failed to fetch')) {
+        return '⚠️ සේවාදායකය සම්බන්ධ කළ නොහැක.\n\nකරුණාකර පරුක්ෂා කරන්න:\n1. Backend server එක ධාවනය වේද? (node server.js)\n2. පෝට් 5000 භාවිතයේද?\n3. CORS සක්‍රිය වී ඇද්ද?';
       }
-    } catch (error) {
-      console.error('Error liking post:', error);
+      
+      return `⚠️ දෝෂයක්: ${err.message}\n\nකරුණාකර නැවත උත්සාහ කරන්න.`;
+      
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const sentimentColors = {
-    positive: 'bg-green-100 text-green-800',
-    negative: 'bg-red-100 text-red-800',
-    neutral: 'bg-gray-100 text-gray-800'
+  // Language translations
+  const translations = {
+    si: {
+      title: 'Discussion Forum',
+      welcomeMsg: 'ආයුබෝවන්! මට කෙසේ උදව් කළ හැකිද?',
+      sinhalaTyping: 'සිංහල ටයිප් කිරීම සක්‍රීයයි',
+      englishTyping: 'English Typing',
+      yourMessage: 'ඔබගේ පණිවිඩය',
+      placeholder: "Type in English, press SPACE to convert (e.g., 'mama ' → 'මම')",
+      sendBtn: 'යවන්න',
+      newChat: 'නව සංවාදය',
+      today: 'අද',
+      loading: 'පණිවිඩය යවමින්...'
+    },
+    en: {
+      title: 'Discussion Forum',
+      welcomeMsg: 'Hello! How can I help you?',
+      sinhalaTyping: 'Sinhala Typing Enabled',
+      englishTyping: 'English Typing',
+      yourMessage: 'Your Message',
+      placeholder: "Type your message here...",
+      sendBtn: 'Send',
+      newChat: 'New Chat',
+      today: 'Today',
+      loading: 'Sending message...'
+    },
+  };
+
+  const t = translations[language];
+
+  const createNewChat = () => {
+    const newChatId = Date.now();
+    const newChat = {
+      id: newChatId,
+      title: t.newChat || 'නව සංවාදය',
+      date: t.today || 'අද',
+      messages: [{ id: 1, type: 'received', text: t.welcomeMsg }]
+    };
+    setChatHistory([newChat, ...chatHistory]);
+    setCurrentChatId(newChatId);
+    setMessages([{ id: 1, type: 'received', text: t.welcomeMsg }]);
+    setMessage('');
+  };
+
+  const loadChat = (chatId) => {
+    const chat = chatHistory.find(c => c.id === chatId);
+    if (chat) {
+      setCurrentChatId(chatId);
+      setMessages(chat.messages);
+      setMessage('');
+    }
+  };
+
+  // Sinhala transliteration map
+  const sinhalaMap = {
+    'a': 'අ', 'aa': 'ආ', 'ae': 'ඇ', 'aae': 'ඈ', 'i': 'ඉ', 'ii': 'ඊ', 'u': 'උ', 'uu': 'ඌ',
+    'e': 'එ', 'ee': 'ඒ', 'ai': 'ඓ', 'o': 'ඔ', 'oo': 'ඕ', 'au': 'ඖ',
+    'ka': 'ක', 'kaa': 'කා', 'ki': 'කි', 'kii': 'කී', 'ku': 'කු', 'kuu': 'කූ', 'ke': 'කෙ', 'kee': 'කේ', 'ko': 'කො', 'koo': 'කෝ',
+    'ga': 'ග', 'gaa': 'ගා', 'gi': 'ගි', 'gii': 'ගී', 'gu': 'ගු', 'guu': 'ගූ', 'ge': 'ගෙ', 'gee': 'ගේ', 'go': 'ගො', 'goo': 'ගෝ',
+    'nga': 'ඞ', 'ngaa': 'ඞා', 'ngi': 'ඞි', 'ngii': 'ඞී', 'ngu': 'ඞු', 'nguu': 'ඞූ',
+    'ca': 'ච', 'caa': 'චා', 'ci': 'චි', 'cii': 'චී', 'cu': 'චු', 'cuu': 'චූ', 'ce': 'චෙ', 'cee': 'චේ', 'co': 'චො', 'coo': 'චෝ',
+    'ja': 'ජ', 'jaa': 'ජා', 'ji': 'ජි', 'jii': 'ජී', 'ju': 'ජු', 'juu': 'ජූ', 'je': 'ජෙ', 'jee': 'ජේ', 'jo': 'ජො', 'joo': 'ජෝ',
+    'nya': 'ඤ', 'nyaa': 'ඤා', 'nyi': 'ඤි', 'nyii': 'ඤී', 'nyu': 'ඤු', 'nyuu': 'ඤූ',
+    'ta': 'ට', 'taa': 'ටා', 'ti': 'ටි', 'tii': 'ටී', 'tu': 'ටු', 'tuu': 'ටූ', 'te': 'ටෙ', 'tee': 'ටේ', 'to': 'ටො', 'too': 'ටෝ',
+    'da': 'ඩ', 'daa': 'ඩා', 'di': 'ඩි', 'dii': 'ඩී', 'du': 'ඩු', 'duu': 'ඩූ', 'de': 'ඩෙ', 'dee': 'ඩේ', 'do': 'ඩො', 'doo': 'ඩෝ',
+    'na': 'න', 'naa': 'නා', 'ni': 'නි', 'nii': 'නී', 'nu': 'නු', 'nuu': 'නූ', 'ne': 'නෙ', 'nee': 'නේ', 'no': 'නො', 'noo': 'නෝ',
+    'pa': 'ප', 'paa': 'පා', 'pi': 'පි', 'pii': 'පී', 'pu': 'පු', 'puu': 'පූ', 'pe': 'පෙ', 'pee': 'පේ', 'po': 'පො', 'poo': 'පෝ',
+    'ba': 'බ', 'baa': 'බා', 'bi': 'බි', 'bii': 'බී', 'bu': 'බු', 'buu': 'බූ', 'be': 'බෙ', 'bee': 'බේ', 'bo': 'බො', 'boo': 'බෝ',
+    'ma': 'ම', 'maa': 'මා', 'mi': 'මි', 'mii': 'මී', 'mu': 'මු', 'muu': 'මූ', 'me': 'මෙ', 'mee': 'මේ', 'mo': 'මො', 'moo': 'මෝ',
+    'ya': 'ය', 'yaa': 'යා', 'yi': 'යි', 'yii': 'යී', 'yu': 'යු', 'yuu': 'යූ', 'ye': 'යෙ', 'yee': 'යේ', 'yo': 'යො', 'yoo': 'යෝ',
+    'ra': 'ර', 'raa': 'රා', 'ri': 'රි', 'rii': 'රී', 'ru': 'රු', 'ruu': 'රූ', 're': 'රෙ', 'ree': 'රේ', 'ro': 'රො', 'roo': 'රෝ',
+    'la': 'ල', 'laa': 'ලා', 'li': 'ලි', 'lii': 'ලී', 'lu': 'ලු', 'luu': 'ලූ', 'le': 'ලෙ', 'lee': 'ලේ', 'lo': 'ලො', 'loo': 'ලෝ',
+    'va': 'ව', 'vaa': 'වා', 'vi': 'වි', 'vii': 'වී', 'vu': 'වු', 'vuu': 'වූ', 've': 'වෙ', 'vee': 'වේ', 'vo': 'වො', 'voo': 'වෝ',
+    'sa': 'ස', 'saa': 'සා', 'si': 'සි', 'sii': 'සී', 'su': 'සු', 'suu': 'සූ', 'se': 'සෙ', 'see': 'සේ', 'so': 'සො', 'soo': 'සෝ',
+    'ha': 'හ', 'haa': 'හා', 'hi': 'හි', 'hii': 'හී', 'hu': 'හු', 'huu': 'හූ', 'he': 'හෙ', 'hee': 'හේ', 'ho': 'හො', 'hoo': 'හෝ',
+    'tha': 'ත', 'thaa': 'තා', 'thi': 'ති', 'thii': 'තී', 'thu': 'තු', 'thuu': 'තූ', 'the': 'තෙ', 'thee': 'තේ', 'tho': 'තො', 'thoo': 'තෝ',
+    'dha': 'ද', 'dhaa': 'දා', 'dhi': 'දි', 'dhii': 'දී', 'dhu': 'දු', 'dhuu': 'දූ', 'dhe': 'දෙ', 'dhee': 'දේ', 'dho': 'දො', 'dhoo': 'දෝ',
+    'pha': 'ඵ', 'phaa': 'ඵා', 'phi': 'ඵි', 'phii': 'ඵී', 'phu': 'ඵු', 'phuu': 'ඵූ',
+    'bha': 'භ', 'bhaa': 'භා', 'bhi': 'භි', 'bhii': 'භී', 'bhu': 'භු', 'bhuu': 'භූ',
+    'k': 'ක්', 'g': 'ග්', 'ng': 'ං', 'c': 'ච්', 'j': 'ජ්', 't': 'ට්', 'd': 'ඩ්', 'n': 'න්',
+    'p': 'ප්', 'b': 'බ්', 'm': 'ම්', 'y': 'ය්', 'r': 'ර්', 'l': 'ල්', 'v': 'ව්', 'w': 'ව්',
+    's': 'ස්', 'h': 'හ්', 'f': 'ෆ්', 'th': 'ත්', 'dh': 'ද්'
+  };
+
+  const convertToSinhala = (text) => {
+    if (!sinhalaEnabled) return text;
+    
+    const words = text.split(' ');
+    const convertedWords = words.map((word, index) => {
+      if (index === words.length - 1) {
+        return word;
+      }
+      
+      let result = '';
+      let i = 0;
+      
+      while (i < word.length) {
+        let matched = false;
+        
+        for (let len = Math.min(4, word.length - i); len > 0; len--) {
+          const substr = word.substr(i, len).toLowerCase();
+          if (sinhalaMap[substr]) {
+            result += sinhalaMap[substr];
+            i += len;
+            matched = true;
+            break;
+          }
+        }
+        
+        if (!matched) {
+          result += word[i];
+          i++;
+        }
+      }
+      
+      return result;
+    });
+    
+    return convertedWords.join(' ');
+  };
+
+  const handleMessageChange = (e) => {
+    const input = e.target.value;
+    setMessage(input);
+  };
+
+  const handleTextareaKeyDown = (e) => {
+    if (e.key === ' ' && sinhalaEnabled) {
+      const converted = convertToSinhala(message + ' ');
+      setMessage(converted);
+      e.preventDefault();
+    }
+  };
+
+  const handleSend = async () => {
+    if (message.trim() && !isLoading) {
+      const finalMessage = sinhalaEnabled ? convertToSinhala(message + ' ').trim() : message;
+      
+      let newMessages = [...messages, { id: Date.now(), type: 'sent', text: finalMessage }];
+      setMessages(newMessages);
+      setMessage('');
+      
+      // Get AI response from backend
+      const aiResponse = await getGeminiResponse(finalMessage);
+      
+      const botResponse = {
+        id: Date.now() + 1,
+        type: 'received',
+        text: aiResponse
+      };
+      
+      const messagesWithBot = [...newMessages, botResponse];
+      setMessages(messagesWithBot);
+      
+      // Update chat history
+      const updatedHistory = chatHistory.map(chat => 
+        chat.id === currentChatId ? { 
+          ...chat, 
+          messages: messagesWithBot, 
+          title: finalMessage.substring(0, 30) + '...' 
+        } : chat
+      );
+      setChatHistory(updatedHistory);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex-1">
-          <Link to={`/forum/post/${post._id}`}>
-            <h3 className="text-xl font-semibold text-gray-900 hover:text-primary-600 mb-2 transition-colors">
-              {post.title}
-            </h3>
-          </Link>
-          <div className="flex items-center gap-4 text-sm text-gray-600">
-            <span>{t('forum.by')} {post.userId?.name || t('forum.unknown')}</span>
-            <span>•</span>
-            <span>{new Date(post.createdAt).toLocaleDateString()}</span>
-            <span>•</span>
-            <span className="capitalize">{post.topic}</span>
-            <span>•</span>
-            <span>{post.comments?.length || 0} {t('forum.comments')}</span>
+    <div className={`chat-wrapper ${theme}`}>
+      {/* Sidebar */}
+      <div className={`sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
+        <div className="sidebar-header">
+          <button className="new-chat-btn" onClick={createNewChat}>
+            <Plus className="icon" />
+            <span>{t.newChat}</span>
+          </button>
+        </div>
+        
+        <div className="chat-list">
+          <div className="chat-group">
+            <h4>{t.today}</h4>
+            {chatHistory.filter(chat => chat.date === (t.today)).map(chat => (
+              <div 
+                key={chat.id}
+                className={`chat-item ${chat.id === currentChatId ? 'active' : ''}`}
+                onClick={() => loadChat(chat.id)}
+              >
+                <MessageSquare className="chat-icon" />
+                <span className="chat-title">{chat.title}</span>
+              </div>
+            ))}
           </div>
         </div>
-        {post.sentiment && (
-          <span className={`px-2 py-1 rounded text-xs ${sentimentColors[post.sentiment]}`}>
-            {post.sentiment}
-          </span>
-        )}
       </div>
-      
-      <div 
-        className="text-gray-700 mb-4"
-        dangerouslySetInnerHTML={{ __html: post.content.substring(0, 200) + (post.content.length > 200 ? '...' : '') }}
-      />
-      
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2">
-          {post.tags?.map((tag, idx) => (
-            <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-              {tag}
-            </span>
-          ))}
+
+      {/* Main Content */}
+      <div className="main-content">
+        {/* Header */}
+        <div className="chat-header">
+          <div className="header-content">
+            <div className="header-left">
+              <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                <Menu className="icon" />
+              </button>
+              <h1>{t.title}</h1>
+            </div>
+            {/* <div className="user-avatar">
+              <User className="icon" />
+            </div> */}
+          </div>
         </div>
-        <button
-          onClick={handleLike}
-          className={`flex items-center gap-1 px-3 py-1 rounded ${
-            liked ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'
-          }`}
-        >
-          ❤️ {likesCount}
-        </button>
+
+        {/* Content Area - Chat Only */}
+        <div className="content-area">
+          {/* Messages */}
+          <div className="messages-container">
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`message-wrapper ${msg.type}`}
+              >
+                <div className={`message-bubble ${msg.type}`}>
+                  <p>{msg.text}</p>
+                </div>
+              </div>
+            ))}
+            {isLoading && (
+              <div className="message-wrapper received">
+                <div className="message-bubble received">
+                  <p>⏳ {t.loading}</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Input Area */}
+          <div className="input-area">
+            <div className="sinhala-toggle">
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={sinhalaEnabled}
+                  onChange={(e) => setSinhalaEnabled(e.target.checked)}
+                />
+                <span className="toggle-slider"></span>
+              </label>
+              <span className="toggle-label">
+                {sinhalaEnabled ? t.sinhalaTyping : t.englishTyping}
+              </span>
+            </div>
+            <div className="input-wrapper">
+              <div className="input-group">
+                <label>{t.yourMessage}</label>
+                <textarea
+                  value={message}
+                  onChange={handleMessageChange}
+                  onKeyDown={handleTextareaKeyDown}
+                  onKeyPress={handleKeyPress}
+                  placeholder={t.placeholder}
+                  rows="2"
+                  disabled={isLoading}
+                />
+              </div>
+              <button 
+                onClick={handleSend} 
+                className="send-button"
+                disabled={isLoading || !message.trim()}
+              >
+                <span>{t.sendBtn}</span>
+                <Send className="icon" />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
