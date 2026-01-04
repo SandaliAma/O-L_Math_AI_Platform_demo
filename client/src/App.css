@@ -1,0 +1,67 @@
+/* Global styles for mobile and web */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Touch-friendly buttons */
+button, 
+a.button,
+[role="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 44px; /* Minimum touch target size for mobile */
+  min-width: 44px;
+}
+
+/* Ensure text doesn't overflow */
+h1, h2, h3, h4, h5, h6, p, span {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Responsive images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Mobile-friendly scrolling */
+@media (max-width: 640px) {
+  html {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  body {
+    overflow-x: hidden;
+  }
+}
+
+/* Prevent horizontal scroll on mobile */
+.container, 
+.max-w-7xl, 
+.max-w-4xl {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Better form inputs on mobile */
+input, 
+textarea, 
+select {
+  font-size: 16px; /* Prevents zoom on iOS */
+}
+
+@media (max-width: 640px) {
+  input, 
+  textarea, 
+  select {
+    font-size: 16px !important;
+  }
+}

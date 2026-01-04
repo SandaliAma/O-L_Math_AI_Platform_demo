@@ -1,0 +1,45 @@
+{
+  "name": "ai-enhanced-learning-platform",
+  "version": "1.0.0",
+  "description": "AI-Enhanced Learning Platform for Sri Lankan O-Level Mathematics Students",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
+    "client": "cd client && npm start",
+    "server": "nodemon server/index.js",
+    "install-client": "cd client && npm install",
+    "install-server": "npm install",
+    "install-all": "npm install && cd client && npm install"
+  },
+  "keywords": [
+    "ai",
+    "machine-learning",
+    "education",
+    "mathematics",
+    "sri-lanka",
+    "o-level"
+  ],
+  "author": "CoEAI - Centre of Excellence for AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^8.0.3",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5",
+    "axios": "^1.6.2",
+    "express-validator": "^7.0.1",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.7",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
+
+

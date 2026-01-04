@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    @apply bg-dominant-50 dark:bg-dominant-950 text-dominant-900 dark:text-dominant-50 transition-colors duration-200;
+  }
+
+  code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+      monospace;
+  }
+
+  /* MathJax styling */
+  .MathJax {
+    font-size: 1.1em !important;
+  }
+
+  /* Smooth transitions for theme changes */
+  * {
+    @apply transition-colors duration-200;
+  }
+}
+
+@layer components {
+  /* Card component with theme support */
+  .card {
+    @apply bg-white dark:bg-dominant-900 rounded-xl shadow-lg 
+           border border-dominant-200 dark:border-dominant-800
+           p-6 transition-all duration-200;
+  }
+
+  .card-hover {
+    @apply hover:shadow-xl hover:scale-[1.02] transition-all duration-200;
+  }
+
+  /* Input component with theme support */
+  .input {
+    @apply w-full px-4 py-2 rounded-lg border
+           bg-white dark:bg-dominant-900
+           border-dominant-300 dark:border-dominant-700
+           text-dominant-900 dark:text-dominant-50
+           placeholder-dominant-500 dark:placeholder-dominant-400
+           focus:outline-none focus:ring-2 focus:ring-dominant-500
+           focus:border-transparent transition-all duration-200;
+  }
+}
+
+

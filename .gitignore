@@ -1,0 +1,54 @@
+# Dependencies
+node_modules/
+client/node_modules/
+ml-services/__pycache__/
+ml-services/.venv/
+ml-services/venv/
+*.pyc
+__pycache__/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+client/build/
+dist/
+*.tgz
+
+# Testing
+coverage/
+.nyc_output/
+
+# MongoDB
+data/db/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Dependencies
+node_modules/
+.venv/
+__pycache__/
