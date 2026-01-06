@@ -3,7 +3,7 @@
  * Connects frontend to FastAPI backend
  */
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://172.28.15.124:8000';
 
 /**
  * Custom API Error class
