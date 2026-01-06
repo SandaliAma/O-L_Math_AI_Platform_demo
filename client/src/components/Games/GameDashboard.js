@@ -35,11 +35,10 @@ const GameDashboard = ({ user }) => {
             <button
               key={game.id}
               onClick={() => setSelectedGame(game.id)}
-              className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
-                selectedGame === game.id
+              className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${selectedGame === game.id
                   ? 'border-primary-500 bg-primary-50 text-primary-700 shadow-md'
                   : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:shadow-sm'
-              }`}
+                }`}
             >
               <Icon className="h-6 w-6 sm:h-8 sm:w-8 mb-2" />
               <span className="text-xs sm:text-sm font-medium text-center">{game.name}</span>

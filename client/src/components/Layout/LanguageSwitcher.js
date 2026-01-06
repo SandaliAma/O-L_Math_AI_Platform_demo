@@ -14,14 +14,14 @@ const LanguageSwitcher = () => {
                    hover:text-primary-600 dark:hover:text-primary-400 
                    hover:bg-gray-50 dark:hover:bg-dominant-800 
                    rounded-md transition-colors"
-        title={isSinhala ? "Switch to English" : "English ට මාරු වන්න"}
+        title={isSinhala ? "Switch to English" : "සිංහලට මාරු වන්න"}
       >
         <GlobeAltIcon className="h-5 w-5" />
         <span className="hidden sm:inline">
-          {currentLanguage === 'en' ? 'සිංහල' : 'English'}
+          {currentLanguage === 'en' ? 'English' : 'සිංහල'}
         </span>
         <span className="sm:hidden">
-          {currentLanguage === 'en' ? 'SI' : 'EN'}
+          {currentLanguage === 'en' ? 'EN' : 'SI'}
         </span>
       </button>
     </div>

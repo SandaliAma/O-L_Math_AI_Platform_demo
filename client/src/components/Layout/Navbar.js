@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  HomeIcon, 
-  AcademicCapIcon, 
+import {
+  HomeIcon,
+  AcademicCapIcon,
   ChatBubbleLeftRightIcon,
   ChartBarIcon,
   DocumentTextIcon,
@@ -24,7 +24,7 @@ const Navbar = ({ user, onLogout }) => {
   const navItems = [
     { path: '/dashboard', labelKey: 'common.dashboard', icon: HomeIcon },
     { path: '/quiz/generate', labelKey: 'common.quiz', icon: AcademicCapIcon },
-    { path: '/games', labelKey: 'games.mathGames', icon: PuzzlePieceIcon },
+
     { path: '/forum', labelKey: 'common.forum', icon: ChatBubbleLeftRightIcon },
     { path: '/progress', labelKey: 'common.progress', icon: ChartBarIcon },
     { path: '/portfolio', labelKey: 'common.portfolio', icon: DocumentTextIcon }
@@ -59,18 +59,16 @@ const Navbar = ({ user, onLogout }) => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`inline-flex items-center px-1 lg:px-2 pt-1 border-b-2 text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-                      isActive(item.path)
+                    className={`inline-flex items-center px-1 lg:px-2 pt-1 border-b-2 text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap ${isActive(item.path)
                         ? 'border-accent-500 dark:border-accent-400 text-dominant-900 dark:text-dominant-50'
                         : 'border-transparent text-dominant-600 dark:text-dominant-400 hover:border-secondary-400 dark:hover:border-secondary-500 hover:text-dominant-900 dark:hover:text-dominant-100'
-                    }`}
+                      }`}
                     title={translatedLabel}
                   >
-                    <Icon className={`h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-200 ${
-                      isActive(item.path) 
-                        ? 'text-accent-500 dark:text-accent-400' 
+                    <Icon className={`h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 flex-shrink-0 transition-colors duration-200 ${isActive(item.path)
+                        ? 'text-accent-500 dark:text-accent-400'
                         : 'text-dominant-600 dark:text-dominant-400'
-                    }`} aria-hidden="true" />
+                      }`} aria-hidden="true" />
                     <span className="hidden md:inline">{translatedLabel}</span>
                   </Link>
                 );
@@ -88,7 +86,7 @@ const Navbar = ({ user, onLogout }) => {
           <div className="flex items-center md:hidden gap-2 flex-shrink-0">
             <ThemeToggle />
             <LanguageSwitcher />
-              <button
+            <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-md text-dominant-600 dark:text-dominant-400 hover:text-dominant-900 dark:hover:text-dominant-100 hover:bg-dominant-100 dark:hover:bg-dominant-800 focus:outline-none focus:ring-2 focus:ring-dominant-500 transition-all duration-200 touch-manipulation"
               aria-label={mobileMenuOpen ? t('common.close') : 'Menu'}
@@ -103,7 +101,7 @@ const Navbar = ({ user, onLogout }) => {
           </div>
         </div>
       </div>
-      
+
       {/* Mobile menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-dominant-200 dark:border-dominant-800 bg-white dark:bg-dominant-900 transition-colors duration-200">
@@ -123,17 +121,15 @@ const Navbar = ({ user, onLogout }) => {
                   key={item.path}
                   to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center px-3 py-2 rounded-md text-sm sm:text-base font-medium transition-all duration-200 ${
-                    isActive(item.path)
+                  className={`flex items-center px-3 py-2 rounded-md text-sm sm:text-base font-medium transition-all duration-200 ${isActive(item.path)
                       ? 'bg-accent-50 dark:bg-accent-900/30 text-accent-700 dark:text-accent-400'
                       : 'text-dominant-700 dark:text-dominant-300 hover:bg-dominant-100 dark:hover:bg-dominant-800 hover:text-dominant-900 dark:hover:text-dominant-100'
-                  }`}
+                    }`}
                 >
-                  <Icon className={`h-5 w-5 mr-3 flex-shrink-0 ${
-                    isActive(item.path) 
-                      ? 'text-accent-600 dark:text-accent-400' 
+                  <Icon className={`h-5 w-5 mr-3 flex-shrink-0 ${isActive(item.path)
+                      ? 'text-accent-600 dark:text-accent-400'
                       : 'text-dominant-600 dark:text-dominant-400'
-                  }`} aria-hidden="true" />
+                    }`} aria-hidden="true" />
                   <span>{translatedLabel}</span>
                 </Link>
               );
