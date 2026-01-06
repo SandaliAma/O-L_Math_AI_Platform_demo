@@ -15,6 +15,7 @@ import Portfolio from './components/Progress/Portfolio';
 import GameDashboard from './components/Games/GameDashboard';
 import BadgesPage from './components/Badges/BadgesPage';
 import Navbar from './components/Layout/Navbar';
+import MathQuizTaking from './components/Quiz/QuizTaking';
 import StressIndicator from './components/Stress/StressIndicator';
 import './App.css';
 
@@ -165,7 +166,7 @@ function AppContent({ user, onLogout, onLogin }) {
             path="/badges" 
             element={user ? <BadgesPage user={user} /> : <Navigate to="/login" />} 
           />
-          
+          <Route path="/quiz/math" element={<MathQuizTaking user={user} />} />
           <Route 
             path="/" 
             element={<Navigate to={user ? "/dashboard" : "/login"} />} 
