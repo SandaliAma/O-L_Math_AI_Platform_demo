@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { badgesAPI } from '../../utils/api';
-import { TrophyIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { getBadgeIcon } from './BadgeIconMapper';
+import { TrophyIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../hooks/useTranslation';
 
 const BadgesDisplay = ({ userId, showAll = false }) => {
@@ -18,7 +19,7 @@ const BadgesDisplay = ({ userId, showAll = false }) => {
       const response = await badgesAPI.getMyBadges();
       if (response.data.success) {
         setBadges(response.data);
-        
+
         // Show notification for newly awarded badges
         if (response.data.newlyAwarded && response.data.newlyAwarded.length > 0) {
           setNewlyAwarded(response.data.newlyAwarded);
@@ -61,12 +62,15 @@ const BadgesDisplay = ({ userId, showAll = false }) => {
       {newlyAwarded.length > 0 && (
         <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
           <div className="flex items-center">
-            <SparklesIcon className="h-6 w-6 text-green-600 mr-2" />
+            {getBadgeIcon(newlyAwarded[0]?.badgeId, "h-6 w-6 text-green-600 mr-2")}
             <div>
               <h4 className="font-semibold text-green-900">New Badge Earned!</h4>
               {newlyAwarded.map((badge, idx) => (
                 <p key={idx} className="text-sm text-green-700">
-                  {badge.icon} {badge.name} - {badge.description}
+                  <span className="mr-2 inline-block align-middle">
+                    {getBadgeIcon(badge.badgeId, "w-4 h-4")}
+                  </span>
+                  {badge.name} - {badge.description}
                 </p>
               ))}
             </div>
@@ -98,20 +102,25 @@ const BadgesDisplay = ({ userId, showAll = false }) => {
           {badgesToShow.map((badge, idx) => (
             <div
               key={idx}
-              className={`relative rounded-lg border-2 p-4 text-center transition-all ${
-                badge.earned
-                  ? rarityColors[badge.rarity] || rarityColors.common
-                  : 'bg-gray-50 border-gray-200 opacity-50'
-              } ${badge.earned ? 'hover:shadow-lg' : ''}`}
+              className={`relative rounded-lg border-2 p-4 text-center transition-all ${badge.earned
+                ? rarityColors[badge.rarity] || rarityColors.common
+                : 'bg-gray-50 border-gray-200 opacity-50'
+                } ${badge.earned ? 'hover:shadow-lg' : ''}`}
             >
               {badge.earned && (
                 <div className="absolute top-1 right-1">
                   <TrophyIcon className="h-4 w-4 text-yellow-500" />
                 </div>
               )}
-              <div className="text-4xl mb-2">{badge.icon}</div>
-              <h4 className="font-semibold text-sm mb-1">{badge.name}</h4>
-              <p className="text-xs text-gray-600 line-clamp-2">{badge.description}</p>
+              <div className="flex justify-center mb-2">
+                {getBadgeIcon(badge.badgeId, "w-12 h-12")}
+              </div>
+              <h4 className="font-semibold text-sm mb-1">
+                {t(`badges.${badge.badgeId}.name`, badge.name)}
+              </h4>
+              <p className="text-xs text-gray-600 line-clamp-3">
+                {t(`badges.${badge.badgeId}.description`, badge.description)}
+              </p>
               {badge.earned && badge.earnedDate && (
                 <p className="text-xs text-gray-500 mt-2">
                   {new Date(badge.earnedDate).toLocaleDateString()}
@@ -130,8 +139,8 @@ const BadgesDisplay = ({ userId, showAll = false }) => {
       ) : (
         <div className="text-center py-8 text-gray-500">
           <TrophyIcon className="h-12 w-12 mx-auto mb-2 text-gray-400" />
-          <p>{showAll ? 'No badges available' : 'No badges earned yet'}</p>
-          <p className="text-sm mt-2">Complete quizzes and activities to earn badges!</p>
+          <p>{showAll ? t('progress.noBadges') : t('progress.noBadges')}</p>
+          <p className="text-sm mt-2">{t('progress.trackJourney')}</p>
         </div>
       )}
     </div>

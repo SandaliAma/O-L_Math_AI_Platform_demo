@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  AcademicCapIcon, 
-  ChartBarIcon, 
+import {
+  AcademicCapIcon,
+  ChartBarIcon,
   DocumentTextIcon,
   PlusIcon,
   ArrowRightIcon,
@@ -13,6 +13,7 @@ import {
 import { progressAPI } from '../../utils/api';
 import { useTranslation } from '../../hooks/useTranslation';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { getTopicKey } from '../../utils/topicUtils';
 import AdaptiveRecommendation from '../Recommendations/AdaptiveRecommendation';
 
 const Dashboard = ({ user }) => {
@@ -55,10 +56,13 @@ const Dashboard = ({ user }) => {
     );
   }
 
-  const recentScores = dashboardData.recentQuizzes.slice(0, 5).map(q => ({
-    name: new Date(q.date).toLocaleDateString(),
-    score: q.score
-  }));
+  const recentScores = dashboardData.recentQuizzes
+    .slice(0, 5)
+    .reverse()
+    .map(q => ({
+      name: new Date(q.date).toLocaleDateString(),
+      score: q.score
+    }));
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
@@ -206,7 +210,10 @@ const Dashboard = ({ user }) => {
           </h3>
           {dashboardData.topicPerformance.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={dashboardData.topicPerformance.slice(0, 5)}>
+              <BarChart data={dashboardData.topicPerformance.slice(0, 5).map(item => ({
+                ...item,
+                topic: t(`topics.${getTopicKey(item.topic)}`)
+              }))}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="topic" />
                 <YAxis domain={[0, 100]} />
@@ -253,11 +260,10 @@ const Dashboard = ({ user }) => {
                         {quiz.type.replace('-', ' ').toUpperCase()}
                       </td>
                       <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm">
-                        <span className={`px-2 sm:px-3 py-1 rounded-full font-semibold ${
-                          quiz.score >= 70 ? 'bg-success-100 dark:bg-success-900/50 text-success-800 dark:text-success-300' :
+                        <span className={`px-2 sm:px-3 py-1 rounded-full font-semibold ${quiz.score >= 70 ? 'bg-success-100 dark:bg-success-900/50 text-success-800 dark:text-success-300' :
                           quiz.score >= 50 ? 'bg-secondary-100 dark:bg-secondary-900/50 text-secondary-800 dark:text-secondary-300' :
-                          'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300'
-                        }`}>
+                            'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300'
+                          }`}>
                           {quiz.score.toFixed(1)}%
                         </span>
                       </td>

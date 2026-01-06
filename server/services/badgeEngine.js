@@ -76,7 +76,7 @@ class BadgeEngine {
    */
   async collectUserStats(userId, activityType, activityData) {
     const user = await User.findById(userId);
-    
+
     // Get quiz statistics
     const allQuizzes = await Quiz.find({
       userId,
@@ -86,7 +86,7 @@ class BadgeEngine {
     const totalQuizzes = allQuizzes.length;
     const modelPapers = allQuizzes.filter(q => q.type === 'model-paper');
     const adaptiveQuizzes = allQuizzes.filter(q => q.type === 'adaptive');
-    
+
     // Calculate scores
     const scores = allQuizzes
       .map(q => q.score?.percentage)
@@ -114,7 +114,7 @@ class BadgeEngine {
     // Calculate mastery percentages
     const topicMasteryPercentages = {};
     Object.keys(topicMastery).forEach(topic => {
-      topicMasteryPercentages[topic] = 
+      topicMasteryPercentages[topic] =
         (topicMastery[topic].correct / topicMastery[topic].total) * 100;
     });
 
@@ -135,13 +135,13 @@ class BadgeEngine {
     today.setHours(0, 0, 0, 0);
     let streak = 0;
     let checkDate = new Date(today);
-    
+
     while (true) {
       const dayStart = new Date(checkDate);
       dayStart.setHours(0, 0, 0, 0);
       const dayEnd = new Date(checkDate);
       dayEnd.setHours(23, 59, 59, 999);
-      
+
       const hasActivity = await Quiz.exists({
         userId,
         timeStarted: { $gte: dayStart, $lte: dayEnd }
@@ -149,7 +149,7 @@ class BadgeEngine {
         userId,
         startedAt: { $gte: dayStart, $lte: dayEnd }
       });
-      
+
       if (hasActivity) {
         streak++;
         checkDate.setDate(checkDate.getDate() - 1);
@@ -247,8 +247,8 @@ class BadgeEngine {
       case 'forum_participation':
         // Check if criterion specifies posts or comments
         const isPosts = !criterion.value || typeof criterion.value === 'number';
-        const forumCount = isPosts ? 
-          userStats.forumPosts : 
+        const forumCount = isPosts ?
+          userStats.forumPosts :
           userStats.forumComments;
         return this.compareValues(forumCount, condition, value);
 
@@ -298,7 +298,7 @@ class BadgeEngine {
         return String(actual).includes(String(expected));
       case 'all':
         if (Array.isArray(expected)) {
-          return expected.every(val => 
+          return expected.every(val =>
             Array.isArray(actual) ? actual.includes(val) : actual === val
           );
         }
@@ -458,32 +458,70 @@ class BadgeEngine {
         rarity: 'epic',
         criteria: [{ type: 'streak', condition: 'greater_equal', value: 30 }]
       },
+      // Game Badges
       {
-        badgeId: 'forum_contributor',
-        name: 'Forum Contributor',
-        description: 'Made 5 forum posts',
-        icon: '💬',
-        category: 'forum',
+        badgeId: 'game_explorer',
+        name: 'Game Explorer',
+        description: 'Played your first game',
+        icon: '🎮',
+        category: 'game',
         rarity: 'common',
-        criteria: [{ type: 'forum_participation', condition: 'greater_equal', value: 5 }]
+        criteria: [{ type: 'game_achievement', condition: 'total_games', value: 1 }]
       },
       {
-        badgeId: 'forum_mentor',
-        name: 'Forum Mentor',
-        description: 'Made 20 forum posts',
-        icon: '🤝',
-        category: 'forum',
+        badgeId: 'arcade_fan',
+        name: 'Arcade Fan',
+        description: 'Played 10 games',
+        icon: '🕹️',
+        category: 'game',
         rarity: 'uncommon',
-        criteria: [{ type: 'forum_participation', condition: 'greater_equal', value: 20 }]
+        criteria: [{ type: 'game_achievement', condition: 'total_games', value: 10 }]
       },
       {
-        badgeId: 'helpful_peer',
-        name: 'Helpful Peer',
-        description: 'Made 10 constructive comments on forum posts',
-        icon: '💡',
-        category: 'forum',
+        badgeId: 'high_scorer',
+        name: 'High Scorer',
+        description: 'Achieved a score of 1000 or more in a game',
+        icon: '🎯',
+        category: 'game',
+        rarity: 'rare',
+        criteria: [{ type: 'game_achievement', condition: 'best_score', value: 1000 }]
+      },
+      // New Average Score Badges
+      {
+        badgeId: 'avg_score_45',
+        name: 'Bronze Scholar',
+        description: 'Achieved an average score above 45%',
+        icon: '🥉',
+        category: 'achievement',
         rarity: 'common',
-        criteria: [{ type: 'forum_participation', condition: 'greater_equal', value: 10 }]
+        criteria: [{ type: 'quiz_score', condition: 'greater_than', value: 45 }]
+      },
+      {
+        badgeId: 'avg_score_55',
+        name: 'Silver Scholar',
+        description: 'Achieved an average score above 55%',
+        icon: '🥈',
+        category: 'achievement',
+        rarity: 'uncommon',
+        criteria: [{ type: 'quiz_score', condition: 'greater_than', value: 55 }]
+      },
+      {
+        badgeId: 'avg_score_65',
+        name: 'Gold Scholar',
+        description: 'Achieved an average score above 65%',
+        icon: '🥇',
+        category: 'achievement',
+        rarity: 'rare',
+        criteria: [{ type: 'quiz_score', condition: 'greater_than', value: 65 }]
+      },
+      {
+        badgeId: 'avg_score_75',
+        name: 'Platinum Scholar',
+        description: 'Achieved an average score above 75%',
+        icon: '💎',
+        category: 'achievement',
+        rarity: 'epic',
+        criteria: [{ type: 'quiz_score', condition: 'greater_than', value: 75 }]
       }
     ];
 

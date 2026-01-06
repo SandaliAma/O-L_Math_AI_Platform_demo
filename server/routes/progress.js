@@ -11,7 +11,7 @@ const router = express.Router();
 router.get('/dashboard', protect, async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
-    
+
     // Get recent quiz performance
     const recentQuizzes = await Quiz.find({
       userId: req.user._id,
@@ -19,7 +19,7 @@ router.get('/dashboard', protect, async (req, res) => {
     })
       .sort({ createdAt: -1 })
       .limit(10)
-      .select('type score timeStarted createdAt');
+      .select('type score timeStarted createdAt questions.topic');
 
     // Calculate statistics
     const allQuizzes = await Quiz.find({
@@ -29,7 +29,7 @@ router.get('/dashboard', protect, async (req, res) => {
 
     const totalQuizzes = allQuizzes.length;
     const averageScore = user.performance.averageScore;
-    
+
     // Calculate topic-wise performance
     const topicPerformance = {};
     allQuizzes.forEach(quiz => {
@@ -59,20 +59,20 @@ router.get('/dashboard', protect, async (req, res) => {
     // Calculate streak (consecutive days with activity)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     let streak = 0;
     let checkDate = new Date(today);
-    
+
     while (true) {
       const dayStart = new Date(checkDate);
       const dayEnd = new Date(checkDate);
       dayEnd.setHours(23, 59, 59, 999);
-      
+
       const hasActivity = await Quiz.exists({
         userId: req.user._id,
         timeStarted: { $gte: dayStart, $lte: dayEnd }
       });
-      
+
       if (hasActivity) {
         streak++;
         checkDate.setDate(checkDate.getDate() - 1);
@@ -88,7 +88,7 @@ router.get('/dashboard', protect, async (req, res) => {
       averageScore,
       streak
     });
-    
+
     // Refresh user to get updated badges
     const updatedUser = await User.findById(req.user._id);
     const badges = updatedUser.performance.badges || [];
@@ -104,6 +104,7 @@ router.get('/dashboard', protect, async (req, res) => {
         recentQuizzes: recentQuizzes.map(q => ({
           id: q._id,
           type: q.type,
+          topic: q.questions[0]?.topic || 'General',
           score: q.score.percentage,
           date: q.timeStarted || q.createdAt
         })),
@@ -126,7 +127,7 @@ router.get('/dashboard', protect, async (req, res) => {
 router.get('/portfolio', protect, async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
-    
+
     const allQuizzes = await Quiz.find({
       userId: req.user._id,
       status: 'completed'
@@ -136,7 +137,7 @@ router.get('/portfolio', protect, async (req, res) => {
     const totalQuizzes = allQuizzes.length;
     const modelPapers = allQuizzes.filter(q => q.type === 'model-paper').length;
     const adaptiveQuizzes = allQuizzes.filter(q => q.type === 'adaptive').length;
-    
+
     const scores = allQuizzes.map(q => q.score.percentage).filter(s => s !== undefined);
     const bestScore = scores.length > 0 ? Math.max(...scores) : 0;
     const averageScore = user.performance.averageScore;
@@ -215,7 +216,7 @@ function formatPortfolioText(portfolio) {
   text += `School: ${portfolio.studentInfo.school}\n`;
   text += `District: ${portfolio.studentInfo.district}\n`;
   text += `Grade: ${portfolio.studentInfo.grade}\n\n`;
-  
+
   text += `ACADEMIC SUMMARY\n`;
   text += `----------------\n`;
   text += `Total Quizzes Completed: ${portfolio.academicSummary.totalQuizzes}\n`;
@@ -224,7 +225,7 @@ function formatPortfolioText(portfolio) {
   text += `Average Score: ${portfolio.academicSummary.averageScore}%\n`;
   text += `Best Score: ${portfolio.academicSummary.bestScore}%\n`;
   text += `Total Time Spent: ${portfolio.academicSummary.totalTimeSpent} minutes\n\n`;
-  
+
   if (portfolio.badges.length > 0) {
     text += `BADGES EARNED\n`;
     text += `-------------\n`;
@@ -233,7 +234,7 @@ function formatPortfolioText(portfolio) {
     });
     text += `\n`;
   }
-  
+
   if (portfolio.strengths.length > 0) {
     text += `STRENGTHS\n`;
     text += `---------\n`;
@@ -242,7 +243,7 @@ function formatPortfolioText(portfolio) {
     });
     text += `\n`;
   }
-  
+
   if (portfolio.areasForImprovement.length > 0) {
     text += `AREAS FOR IMPROVEMENT\n`;
     text += `---------------------\n`;
@@ -251,16 +252,16 @@ function formatPortfolioText(portfolio) {
     });
     text += `\n`;
   }
-  
+
   text += `TOPIC MASTERY\n`;
   text += `-------------\n`;
   portfolio.topicMastery.slice(0, 10).forEach(topic => {
     text += `${topic.topic}: ${Math.round(topic.mastery)}% (${topic.questionsAttempted} questions)\n`;
   });
   text += `\n`;
-  
+
   text += `Generated on: ${portfolio.generatedAt.toLocaleDateString()}\n`;
-  
+
   return text;
 }
 

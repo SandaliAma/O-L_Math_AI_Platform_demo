@@ -69,6 +69,7 @@
     "startByTakingQuiz": "තවමත් විභාග ගත කර නැත. විභාගයක් ගැනීමෙන් ආරම්භ කරන්න!",
     "date": "දිනය",
     "type": "වර්ගය",
+    "topic": "මාතෘකාව",
     "score": "ලකුණ"
   },
   "quiz": {
@@ -97,7 +98,12 @@
     "submitting": "ඉදිරිපත් කරමින්...",
     "noAnswerSelected": "ඉදිරිපත් කිරීමට පෙර සියලුම ප්‍රශ්නවලට පිළිතුරු සපයන්න",
     "timeLimit": "කාල සීමාව",
-    "minutes": "මිනිත්තු"
+    "minutes": "මිනිත්තු",
+    "types": {
+      "adaptive": "සුවිශේෂී විභාගය",
+      "model-paper": "ආදර්ශ ප්‍රශ්න පත්‍රය",
+      "practice": "පුහුණු විභාගය"
+    }
   },
   "forum": {
     "discussionForum": "සාකච්ඡා සංසදය",
@@ -226,7 +232,15 @@
     "activeDays": "සක්‍රිය දින",
     "totalActivities": "සම්පූර්ණ ක්‍රියාකාරකම්",
     "playAndPractice": "රසවත් ගණිත ක්‍රීඩා සෙල්ලම් කර ඔබේ කුසලතා පුහුණු කරන්න",
-    "challenge": "අභියෝගය"
+    "challenge": "අභියෝගය",
+    "findNextNumber": "ඊළඟ අංකය සොයන්න: {{sequence}}",
+    "solveForX": "x සඳහා විසඳන්න: {{equation}}",
+    "calculate": "ගණනය කරන්න: {{problem}}",
+    "areaOfRectangle": "සෘජුකෝණාස්‍රයේ වර්ගඵලය: දිග={{l}}, පළල={{w}}",
+    "perimeterOfSquare": "සමචතුරස්‍රයේ පරිමිතිය: පැත්ත={{s}}",
+    "areaOfTriangle": "ත්‍රිකෝණයේ වර්ගඵලය: පාදය={{b}}, උස={{h}}",
+    "areaOfCircle": "වෘත්තයේ වර්ගඵලය: අරය={{r}} (π=3.14 ලෙස ගෙන)",
+    "volumeOfCube": "ඝනකයේ පරිමාව: පැත්ත={{s}}"
   },
   "errors": {
     "somethingWentWrong": "යමක් වැරදී ඇත",
@@ -234,6 +248,137 @@
     "notFound": "හමු නොවීය",
     "serverError": "සේවාදායක දෝෂය",
     "networkError": "ජාල දෝෂය. කරුණාකර ඔබගේ සබඳතාවය පරීක්ෂා කරන්න."
+  },
+  "badges": {
+    "first_quiz": {
+      "name": "පළමු පියවර",
+      "description": "ඔබගේ පළමු විභාගය සම්පූර්ණ කරන ලදී"
+    },
+    "quiz_master_10": {
+      "name": "විභාග ලෝලියා",
+      "description": "විභාග 10 ක් සම්පූර්ණ කරන ලදී"
+    },
+    "quiz_master_50": {
+      "name": "විභාග මාස්ටර්",
+      "description": "විභාග 50 ක් සම්පූර්ණ කරන ලදී"
+    },
+    "quiz_master_100": {
+      "name": "විභාග පුරාවෘත්තය",
+      "description": "විභාග 100 ක් සම්පූර්ණ කරන ලදී"
+    },
+    "excellent_score": {
+      "name": "විශිෂ්ට කාර්ය සාධනය",
+      "description": "80% හෝ ඊට වැඩි සාමාන්‍ය ලකුණු මට්ටමක් ලබා ගන්නා ලදී"
+    },
+    "perfect_score": {
+      "name": "පරිපූර්ණ ලකුණු",
+      "description": "විභාගයකදී 100% ක් ලබා ගන්නා ලදී"
+    },
+    "model_paper_80": {
+      "name": "ආදර්ශ ප්‍රශ්න පත්‍ර විශේෂඥ",
+      "description": "ආදර්ශ ප්‍රශ්න පත්‍රයකදී 80% හෝ ඊට වැඩි ලකුණු ලබා ගන්නා ලදී"
+    },
+    "model_paper_90": {
+      "name": "ආදර්ශ ප්‍රශ්න පත්‍ර මාස්ටර්",
+      "description": "ආදර්ශ ප්‍රශ්න පත්‍රයකදී 90% හෝ ඊට වැඩි ලකුණු ලබා ගන්නා ලදී"
+    },
+    "topic_master": {
+      "name": "මාතෘකා මාස්ටර්",
+      "description": "ඕනෑම මාතෘකාවකදී 80% ක ප්‍රගුණතාවයක් ලබා ගන්නා ලදී"
+    },
+    "dedicated_learner": {
+      "name": "කැපවූ ඉගෙන ගන්නා",
+      "description": "වේදිකාවේ පැය 10 ක් (මිනිත්තු 600) ගත කරන ලදී"
+    },
+    "time_champion": {
+      "name": "කාල ශූරයා",
+      "description": "වේදිකාවේ පැය 50 ක් (මිනිත්තු 3000) ගත කරන ලදී"
+    },
+    "consistent_7": {
+      "name": "සති රණශූරයා",
+      "description": "දින 7 ක අඛණ්ඩ ඉගෙනුම් වාර්තාවක් පවත්වා ගෙන යන ලදී"
+    },
+    "consistent_30": {
+      "name": "මාසික ශූරයා",
+      "description": "දින 30 ක අඛණ්ඩ ඉගෙනුම් වාර්තාවක් පවත්වා ගෙන යන ලදී"
+    },
+    "game_explorer": {
+      "name": "ක්‍රීඩා ගවේෂකයා",
+      "description": "ඔබගේ පළමු ක්‍රීඩාව ක්‍රීඩා කරන ලදී"
+    },
+    "arcade_fan": {
+      "name": "ආර්කේඩ් රසිකයා",
+      "description": "ක්‍රීඩා 10 ක් ක්‍රීඩා කරන ලදී"
+    },
+    "high_scorer": {
+      "name": "ඉහළම ලකුණු ලාභියා",
+      "description": "ක්‍රීඩාවකදී ලකුණු 1000 ක් හෝ ඊට වැඩි ගණනක් ලබා ගන්නා ලදී"
+    },
+    "avg_score_45": {
+      "name": "ලෝකඩ විද්වතා",
+      "description": "45% ට වැඩි සාමාන්‍ය ලකුණු මට්ටමක් ලබා ගන්නා ලදී"
+    },
+    "avg_score_55": {
+      "name": "රිදී විද්වතා",
+      "description": "55% ට වැඩි සාමාන්‍ය ලකුණු මට්ටමක් ලබා ගන්නා ලදී"
+    },
+    "avg_score_65": {
+      "name": "රන් විද්වතා",
+      "description": "65% ට වැඩි සාමාන්‍ය ලකුණු මට්ටමක් ලබා ගන්නා ලදී"
+    },
+    "avg_score_75": {
+      "name": "ප්ලැටිනම් විද්වතා",
+      "description": "75% ට වැඩි සාමාන්‍ය ලකුණු මට්ටමක් ලබා ගන්නා ලදී"
+    }
+  },
+  "topics": {
+    "perimeter": "පරිමිතිය",
+    "squareRoot": "වර්ගමූලය",
+    "fractions": "භාග",
+    "binomialExpressions": "ද්විපද ප‍්‍රකාශන",
+    "proportion": "අංගසාම්‍යය",
+    "squareArea": "වර්ගඵලය",
+    "factorizationQuadratic": "වර්ගජ ප‍්‍රකාශනවල සාධක",
+    "triangles": "ති‍්‍රකෝණ",
+    "inverseProportion": "ප‍්‍රතිලෝම සමානුපාත",
+    "dataRepresentation": "දත්ත නිරූපණය",
+    "lcmAlgebraic": "වීජීය ප‍්‍රකාශනවල කුඩාම පොදු ගුණාකාරය",
+    "algebraicFractions": "වීජීය භාග",
+    "percentages": "ප‍්‍රතිශත",
+    "equations": "සමීකරණ",
+    "arithmeticSequences1": "සමාන්තර ශ්‍රේණි I",
+    "arithmeticSequences2": "සමාන්තර ශ්‍රේණි II",
+    "sets": "කුලක",
+    "logarithms1": "ලඝුගණක I",
+    "logarithms2": "ලඝුගණක II",
+    "graphs": "ප‍්‍රස්තාර",
+    "speed": "ශීඝ‍්‍රතාව",
+    "formulae": "සූත‍්‍ර",
+    "arithmeticProgressions": "සමාන්තර ශ්‍රේඪි",
+    "algebraicInequalities": "වීජීය අසමානතා",
+    "frequencyDistribution": "සංඛ්‍යාත ව්‍යාප්ති",
+    "circleArea": "වෘත්තයක වර්ගඵලය",
+    "construction": "නිර්මාණ",
+    "surfaceAreaVolume": "පෘෂ්ඨ වර්ගඵලය හා පරිමාව",
+    "probability": "සම්භාවිතාව",
+    "circleAngles": "වෘත්තයක කෝණ",
+    "scaleDrawings": "පරිමාණ රූප",
+    "realNumbers": "තාත්වික සංඛ්‍යා",
+    "indicesLogarithms1": "දර්ශක හා ලඝුගණක - 1",
+    "indicesLogarithms2": "දර්ශක හා ලඝුගණක - 2",
+    "surfaceAreaSolids": "ඝන වස්තුවල පෘෂ්ඨ වර්ගඵලය",
+    "volumeSolids": "ඝන වස්තුවල පරිමාව",
+    "areaParallelLines": "සමාන්තර රේඛා අතර තල රූපවල වර්ගඵලය",
+    "stockMarket": "කොටස් වෙළෙඳ පොල",
+    "midpointTheorem": "මධ්‍ය ලක්ෂ්‍යක ප‍්‍රමේයය",
+    "isoscelesTriangles": "සමද්වීපාද ත‍්‍රිකෝණ",
+    "dataRepresentationInterpretation": "දත්ත නිරූපණය හා අර්ථකථනය",
+    "geometricProgressions": "ගුණෝත්තර ශ්‍රේඨි",
+    "pythagoreanTheorem": "පයිතගරස් ප‍්‍රමේයය",
+    "trigonometry": "ත‍්‍රිකෝණමිතිය",
+    "matrices": "න්‍යාස",
+    "inequalities": "අසමානතා",
+    "cyclicQuadrilaterals": "වෘත්ත චතුරස‍්‍ර",
+    "tangents": "ස්පර්ශක"
   }
 }
-

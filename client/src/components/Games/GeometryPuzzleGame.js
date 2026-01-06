@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { gamesAPI } from '../../utils/api';
 import Button from '../UI/Button';
-import { 
-  PlayIcon, 
-  TrophyIcon, 
+import {
+  PlayIcon,
+  TrophyIcon,
   ClockIcon,
   CheckCircleIcon,
   XCircleIcon
@@ -25,18 +25,18 @@ const GeometryPuzzleGame = () => {
 
   const generateGeometry = () => {
     const problems = [
-      { q: 'Area of rectangle: length=8, width=5', answer: 40, type: 'area' },
-      { q: 'Perimeter of square: side=6', answer: 24, type: 'perimeter' },
-      { q: 'Area of triangle: base=10, height=6', answer: 30, type: 'area' },
-      { q: 'Area of circle: radius=5 (use π=3.14)', answer: 78.5, type: 'area' },
-      { q: 'Volume of cube: side=4', answer: 64, type: 'volume' },
-      { q: 'Area of rectangle: length=12, width=7', answer: 84, type: 'area' }
+      { key: 'areaOfRectangle', params: { l: 8, w: 5 }, answer: 40, type: 'area' },
+      { key: 'perimeterOfSquare', params: { s: 6 }, answer: 24, type: 'perimeter' },
+      { key: 'areaOfTriangle', params: { b: 10, h: 6 }, answer: 30, type: 'area' },
+      { key: 'areaOfCircle', params: { r: 5 }, answer: 78.5, type: 'area' },
+      { key: 'volumeOfCube', params: { s: 4 }, answer: 64, type: 'volume' },
+      { key: 'areaOfRectangle', params: { l: 12, w: 7 }, answer: 84, type: 'area' }
     ];
 
     const problem = problems[Math.floor(Math.random() * problems.length)];
-    
+
     return {
-      question: `Calculate: ${problem.q}`,
+      question: t('games.calculate', { problem: t(`games.${problem.key}`, problem.params) }),
       answer: problem.answer,
       type: problem.type
     };
@@ -71,7 +71,7 @@ const GeometryPuzzleGame = () => {
     }
 
     const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-    
+
     try {
       await gamesAPI.play({
         gameType: 'geometry-puzzle',
@@ -136,7 +136,7 @@ const GeometryPuzzleGame = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <div className="bg-gradient-to-br from-green-500 to-green-700 rounded-2xl shadow-2xl p-6 sm:p-8 text-white text-center">
           <TrophyIcon className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-4" />
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">{t('games.geometryPuzzle')}</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-white">{t('games.geometryPuzzle')}</h1>
           <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 opacity-90">
             {t('games.solveGeometry')} - 60 {t('games.seconds')} {t('games.challenge')}
           </p>
@@ -144,7 +144,7 @@ const GeometryPuzzleGame = () => {
             onClick={startGame}
             variant="secondary"
             size="lg"
-            className="bg-white dark:bg-dominant-800 text-green-600 dark:text-green-400 hover:bg-gray-100 dark:hover:bg-dominant-700 active:bg-gray-200 dark:active:bg-dominant-600 flex items-center gap-2 mx-auto"
+            className="bg-white dark:bg-dominant-800 !text-green-600 dark:text-green-400 hover:bg-gray-100 dark:hover:bg-dominant-700 active:bg-gray-200 dark:active:bg-dominant-600 flex items-center gap-2 mx-auto"
           >
             <PlayIcon className="h-5 w-5 sm:h-6 sm:w-6" />
             <span>{t('games.playGame')}</span>

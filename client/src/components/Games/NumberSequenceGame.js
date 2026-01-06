@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { gamesAPI } from '../../utils/api';
 import Button from '../UI/Button';
-import { 
-  PlayIcon, 
-  TrophyIcon, 
+import {
+  PlayIcon,
+  TrophyIcon,
   ClockIcon,
   CheckCircleIcon,
   XCircleIcon
@@ -35,9 +35,9 @@ const NumberSequenceGame = () => {
 
     const pattern = patterns[Math.floor(Math.random() * patterns.length)];
     const displaySeq = [...pattern.seq, '?'];
-    
+
     return {
-      question: `Find the next number: ${displaySeq.join(', ')}`,
+      question: t('games.findNextNumber', { sequence: displaySeq.join(', ') }),
       answer: pattern.answer,
       sequence: pattern.seq
     };
@@ -72,7 +72,7 @@ const NumberSequenceGame = () => {
     }
 
     const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-    
+
     try {
       await gamesAPI.play({
         gameType: 'number-sequence',
@@ -137,7 +137,7 @@ const NumberSequenceGame = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <div className="bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl shadow-2xl p-6 sm:p-8 text-white text-center">
           <TrophyIcon className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-4" />
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">{t('games.numberSequence')}</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-white">{t('games.numberSequence')}</h1>
           <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 opacity-90">
             {t('games.findPattern')} - 60 {t('games.seconds')} {t('games.challenge')}
           </p>
@@ -145,7 +145,7 @@ const NumberSequenceGame = () => {
             onClick={startGame}
             variant="secondary"
             size="lg"
-            className="bg-white dark:bg-dominant-800 text-purple-600 dark:text-purple-400 hover:bg-gray-100 dark:hover:bg-dominant-700 active:bg-gray-200 dark:active:bg-dominant-600 flex items-center gap-2 mx-auto"
+            className="bg-white dark:bg-dominant-800 !text-purple-600 dark:text-purple-400 hover:bg-gray-100 dark:hover:bg-dominant-700 active:bg-gray-200 dark:active:bg-dominant-600 flex items-center gap-2 mx-auto"
           >
             <PlayIcon className="h-5 w-5 sm:h-6 sm:w-6" />
             <span>{t('games.playGame')}</span>
