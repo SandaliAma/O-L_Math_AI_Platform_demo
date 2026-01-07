@@ -17,6 +17,7 @@ import BadgesPage from './components/Badges/BadgesPage';
 import Navbar from './components/Layout/Navbar';
 import MathQuizTaking from './components/Quiz/QuizTaking';
 import StressIndicator from './components/Stress/StressIndicator';
+import ModelPaperTaking from './components/Quiz/ModelPaperTaking';
 import './App.css';
 
 // Set axios default base URL
@@ -171,6 +172,7 @@ function AppContent({ user, onLogout, onLogin }) {
             path="/" 
             element={<Navigate to={user ? "/dashboard" : "/login"} />} 
           />
+          <Route path="/quiz/model-paper" element={<ModelPaperTaking user={user} />} />
             </Routes>
           </main>
         </div>
