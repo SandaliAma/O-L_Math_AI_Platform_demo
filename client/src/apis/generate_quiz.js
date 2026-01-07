@@ -2,7 +2,7 @@
  * Sinhala Math Question Generator API Client
  */
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://172.28.15.124:8000';
+const API_BASE_URL = process.env.REACT_APP_MATH_API_URL || 'http://localhost:8000';
 
 class APIError extends Error {
   constructor(message, status, data) {
