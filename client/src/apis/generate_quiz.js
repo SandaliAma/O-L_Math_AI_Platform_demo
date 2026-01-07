@@ -8,8 +8,8 @@ class APIError extends Error {
   constructor(message, status, data) {
     super(message);
     this.name = 'APIError';
-    this. status = status;
-    this. data = data;
+    this.status = status;
+    this.data = data;
   }
 }
 
@@ -31,7 +31,7 @@ class MathQuestionAPI {
       ...defaultOptions,
       ...options,
       headers: {
-        ...defaultOptions. headers,
+        ...defaultOptions.headers,
         ...options.headers,
       },
     };
@@ -82,6 +82,25 @@ class MathQuestionAPI {
 
   async getTopics() {
     return this.request('/topics');
+  }
+
+  async evaluateAnswer(data) {
+    // This endpoint is on the Node.js backend, not the Python generator
+    // We'll use the relative path /api assuming the proxy or CORS is set up for the main app
+    const token = localStorage.getItem('token');
+    const response = await fetch('/api/evaluate/explain', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error('Evaluation failed');
+    }
+    return response.json();
   }
 }
 

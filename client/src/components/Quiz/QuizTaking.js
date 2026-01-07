@@ -7,10 +7,10 @@ const MathQuizTaking = ({ user }) => {
   const { t, currentLanguage, changeLanguage } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Get params passed from QuizGenerator
   const passedParams = location.state || {};
-  
+
   // Quiz state
   const [quiz, setQuiz] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -22,16 +22,18 @@ const MathQuizTaking = ({ user }) => {
   const [error, setError] = useState("");
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [showSolution, setShowSolution] = useState({});
-  
+  const [aiFeedback, setAiFeedback] = useState({});
+  const [evaluating, setEvaluating] = useState(false);
+
   // Generation options - initialized from passed params
   const [topic, setTopic] = useState(passedParams.topic || "වාරික ගණනය");
   const [difficulty, setDifficulty] = useState(passedParams.difficulty || "medium");
   const [numQuestions, setNumQuestions] = useState(passedParams.numQuestions || 5);
   const [topics, setTopics] = useState([]);
-  
+
   // Track if we should auto-generate
   const [shouldAutoGenerate, setShouldAutoGenerate] = useState(passedParams.autoGenerate || false);
-  
+
   // Refs
   const questionStartTime = useRef(null);
   const mathContainerRef = useRef(null);
@@ -54,7 +56,7 @@ const MathQuizTaking = ({ user }) => {
   // Close language dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (showLanguageDropdown && !event.target. closest(". language-dropdown-container")) {
+      if (showLanguageDropdown && !event.target.closest(". language-dropdown-container")) {
         setShowLanguageDropdown(false);
       }
     };
@@ -64,8 +66,8 @@ const MathQuizTaking = ({ user }) => {
 
   // Track time when question changes
   useEffect(() => {
-    if (quiz?. questions?. length > 0) {
-      questionStartTime.current = Date. now();
+    if (quiz?.questions?.length > 0) {
+      questionStartTime.current = Date.now();
     }
   }, [currentQuestion, quiz]);
 
@@ -86,7 +88,7 @@ const MathQuizTaking = ({ user }) => {
   const generateQuiz = async () => {
     setGenerating(true);
     setError("");
-    
+
     try {
       const response = await mathAPI.generateQuestions({
         topic,
@@ -95,22 +97,22 @@ const MathQuizTaking = ({ user }) => {
       });
 
       if (response.success) {
-        const parsedQuestions = response.questions. map((q) => ({
-          ... q,
+        const parsedQuestions = response.questions.map((q) => ({
+          ...q,
           steps: parseSteps(q.solution),
         }));
 
         setQuiz({
-          ... response,
+          ...response,
           questions: parsedQuestions,
         });
 
-        const initialAnswers = parsedQuestions. map((q) => ({
+        const initialAnswers = parsedQuestions.map((q) => ({
           stepAnswers: q.steps.map(() => ""),
           finalAnswer: "",
           timeSpent: 0,
         }));
-        
+
         setAnswers(initialAnswers);
         setCurrentQuestion(0);
         setMarkedQuestions(new Set());
@@ -131,7 +133,7 @@ const MathQuizTaking = ({ user }) => {
   // Parse solution string into steps
   const parseSteps = (solution) => {
     if (!solution) return [];
-    
+
     const lines = solution.split("\n").filter((line) => line.trim());
     const steps = [];
     let currentStep = null;
@@ -150,7 +152,7 @@ const MathQuizTaking = ({ user }) => {
           const parts = line.split("=");
           if (parts.length >= 2) {
             currentStep.description = parts[0].trim();
-            currentStep.answer = parts. slice(1).join("=").trim();
+            currentStep.answer = parts.slice(1).join("=").trim();
             currentStep.calculation = line.trim();
           }
         } else {
@@ -167,7 +169,7 @@ const MathQuizTaking = ({ user }) => {
   const handleStepInputChange = (stepIndex, value) => {
     const newAnswers = [...answers];
     if (newAnswers[currentQuestion]) {
-      newAnswers[currentQuestion]. stepAnswers[stepIndex] = value;
+      newAnswers[currentQuestion].stepAnswers[stepIndex] = value;
       setAnswers(newAnswers);
     }
   };
@@ -185,15 +187,15 @@ const MathQuizTaking = ({ user }) => {
   const insertNotation = (stepIndex, notation) => {
     const inputKey = `step-${currentQuestion}-${stepIndex}`;
     const input = inputRefs.current[inputKey];
-    
+
     if (input) {
       const start = input.selectionStart;
       const end = input.selectionEnd;
       const currentValue = answers[currentQuestion]?.stepAnswers[stepIndex] || "";
-      const newValue = currentValue. substring(0, start) + notation + currentValue.substring(end);
-      
+      const newValue = currentValue.substring(0, start) + notation + currentValue.substring(end);
+
       handleStepInputChange(stepIndex, newValue);
-      
+
       setTimeout(() => {
         input.focus();
         input.setSelectionRange(start + notation.length, start + notation.length);
@@ -203,15 +205,15 @@ const MathQuizTaking = ({ user }) => {
 
   const insertFinalNotation = (notation) => {
     const input = inputRefs.current["final-answer"];
-    
+
     if (input) {
       const start = input.selectionStart;
       const end = input.selectionEnd;
       const currentValue = answers[currentQuestion]?.finalAnswer || "";
       const newValue = currentValue.substring(0, start) + notation + currentValue.substring(end);
-      
+
       handleFinalAnswerChange(newValue);
-      
+
       setTimeout(() => {
         input.focus();
         input.setSelectionRange(start + notation.length, start + notation.length);
@@ -223,7 +225,7 @@ const MathQuizTaking = ({ user }) => {
     if (questionStartTime.current && answers[currentQuestion]) {
       const time = Math.floor((Date.now() - questionStartTime.current) / 1000);
       const newAnswers = [...answers];
-      newAnswers[currentQuestion]. timeSpent += time;
+      newAnswers[currentQuestion].timeSpent += time;
       setAnswers(newAnswers);
     }
   };
@@ -259,7 +261,7 @@ const MathQuizTaking = ({ user }) => {
     if (quiz && answers[currentQuestion]) {
       const newAnswers = [...answers];
       newAnswers[currentQuestion] = {
-        stepAnswers:  quiz.questions[currentQuestion].steps. map(() => ""),
+        stepAnswers: quiz.questions[currentQuestion].steps.map(() => ""),
         finalAnswer: "",
         timeSpent: answers[currentQuestion].timeSpent,
       };
@@ -276,7 +278,7 @@ const MathQuizTaking = ({ user }) => {
   const toggleShowSolution = (questionIndex) => {
     setShowSolution((prev) => ({
       ...prev,
-      [questionIndex]: ! prev[questionIndex],
+      [questionIndex]: !prev[questionIndex],
     }));
   };
 
@@ -301,7 +303,7 @@ const MathQuizTaking = ({ user }) => {
     });
 
     console.log("Quiz Results:", results);
-    
+
     const allSolutions = {};
     quiz.questions.forEach((_, idx) => {
       allSolutions[idx] = true;
@@ -319,13 +321,52 @@ const MathQuizTaking = ({ user }) => {
     navigate('/quiz/generate');
   };
 
+  const handleCheckWithAI = async (index) => {
+    const answer = answers[index];
+    if (!answer || (!answer.finalAnswer && !answer.stepAnswers.some(s => s.trim()))) {
+      alert("Please provide an answer first!");
+      return;
+    }
+
+    setEvaluating(true);
+    try {
+      const questionData = quiz.questions[index];
+
+      // Combine steps into a single string for evaluation context
+      const userAnswerText = `
+        Steps: ${answer.stepAnswers.map((s, i) => `Step ${i + 1}: ${s}`).join(' ')}
+        Final Answer: ${answer.finalAnswer}
+      `;
+
+      const response = await mathAPI.evaluateAnswer({
+        question: questionData.question,
+        userAnswer: userAnswerText,
+        solution: questionData.solution,
+        correctAnswer: questionData.answer,
+        type: 'generated'
+      });
+
+      if (response.success) {
+        setAiFeedback(prev => ({
+          ...prev,
+          [index]: response.evaluation
+        }));
+      }
+    } catch (err) {
+      console.error("AI Evaluation error:", err);
+      alert("Failed to get AI feedback. Please try again.");
+    } finally {
+      setEvaluating(false);
+    }
+  };
+
   const getQuestionStatus = (index) => {
     if (index === currentQuestion) return "current";
     if (markedQuestions.has(index)) return "marked";
-    
+
     const answer = answers[index];
     if (answer) {
-      const hasStepAnswers = answer.stepAnswers. some((a) => a.trim() !== "");
+      const hasStepAnswers = answer.stepAnswers.some((a) => a.trim() !== "");
       const hasFinalAnswer = answer.finalAnswer.trim() !== "";
       if (hasStepAnswers || hasFinalAnswer) return "answered";
     }
@@ -338,7 +379,7 @@ const MathQuizTaking = ({ user }) => {
     { symbol: "×", label: "×" },
     { symbol: "÷", label: "÷" },
     { symbol: "%", label: "%" },
-    { symbol: "=", label:  "=" },
+    { symbol: "=", label: "=" },
     { symbol: "(", label: "(" },
     { symbol: ")", label: ")" },
     { symbol: "රු.", label: "රු." },
@@ -352,7 +393,7 @@ const MathQuizTaking = ({ user }) => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <h2 className="text-xl font-semibold text-gray-800 mb-2">
-            ප්‍රශ්න ජනනය වෙමින් පවතී... 
+            ප්‍රශ්න ජනනය වෙමින් පවතී...
           </h2>
           <p className="text-gray-600">Generating {numQuestions} questions about {topic}</p>
           <p className="text-sm text-gray-500 mt-2">Difficulty: {difficulty}</p>
@@ -369,7 +410,7 @@ const MathQuizTaking = ({ user }) => {
           <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-14">
               <div className="flex items-center space-x-4">
-                <button 
+                <button
                   onClick={handleBackToGenerator}
                   className="hover:text-blue-200 flex items-center"
                 >
@@ -393,7 +434,7 @@ const MathQuizTaking = ({ user }) => {
             {error && (
               <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                 {error}
-                <button 
+                <button
                   onClick={() => setError("")}
                   className="float-right text-red-700 hover:text-red-900"
                 >
@@ -485,10 +526,10 @@ const MathQuizTaking = ({ user }) => {
   // Quiz taking UI
   const question = quiz.questions[currentQuestion];
   const currentAnswer = answers[currentQuestion];
-  const answeredCount = answers. filter(
+  const answeredCount = answers.filter(
     (a) => a && (a.stepAnswers.some((s) => s.trim()) || a.finalAnswer.trim())
   ).length;
-  const markedCount = markedQuestions. size;
+  const markedCount = markedQuestions.size;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -497,7 +538,7 @@ const MathQuizTaking = ({ user }) => {
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14">
             <div className="flex items-center space-x-4 sm:space-x-6 overflow-x-auto">
-              <button 
+              <button
                 onClick={handleBackToGenerator}
                 className="hover:text-blue-200 whitespace-nowrap"
               >
@@ -546,7 +587,7 @@ const MathQuizTaking = ({ user }) => {
             <h2 className="text-lg font-semibold text-gray-800">
               ප්‍රශ්නය {currentQuestion + 1} / {quiz.questions.length}
             </h2>
-            {quiz. rag_context_used && (
+            {quiz.rag_context_used && (
               <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
                 RAG Enhanced
               </span>
@@ -583,7 +624,7 @@ const MathQuizTaking = ({ user }) => {
                     <input
                       ref={(el) => (inputRefs.current[`step-${currentQuestion}-${stepIndex}`] = el)}
                       type="text"
-                      value={currentAnswer?. stepAnswers[stepIndex] || ""}
+                      value={currentAnswer?.stepAnswers[stepIndex] || ""}
                       onChange={(e) => handleStepInputChange(stepIndex, e.target.value)}
                       placeholder="පිළිතුර ලියන්න..."
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
@@ -650,6 +691,45 @@ const MathQuizTaking = ({ user }) => {
                 </div>
               )}
             </div>
+
+            {/* AI Feedback Section */}
+            {aiFeedback[currentQuestion] && (
+              <div className={`mb-6 p-4 rounded-lg border-2 ${aiFeedback[currentQuestion].isCorrect ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className={`font-bold ${aiFeedback[currentQuestion].isCorrect ? 'text-green-800' : 'text-red-800'}`}>
+                    AI Feedback: {aiFeedback[currentQuestion].feedback}
+                  </h4>
+                  <span className="text-sm font-mono bg-white px-2 py-1 rounded border">
+                    {aiFeedback[currentQuestion].marksObtained}% Marks
+                  </span>
+                </div>
+                <p className="text-gray-800 text-lg leading-relaxed">
+                  {aiFeedback[currentQuestion].explanation}
+                </p>
+              </div>
+            )}
+
+            {!aiFeedback[currentQuestion] && (
+              <button
+                onClick={() => handleCheckWithAI(currentQuestion)}
+                disabled={evaluating}
+                className="w-full mb-6 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white font-semibold rounded-lg shadow-md transition-all flex items-center justify-center gap-2"
+              >
+                {evaluating ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Evaluating...
+                  </>
+                ) : (
+                  <>
+                    <span>🤖</span> Check with AI Tutor
+                  </>
+                )}
+              </button>
+            )}
           </div>
 
           {/* Show/Hide Solution Button */}
@@ -738,10 +818,10 @@ const MathQuizTaking = ({ user }) => {
               {quiz.questions.map((_, index) => {
                 const status = getQuestionStatus(index);
                 const bgColor =
-                  status === "current" ? "bg-blue-600 text-white ring-2 ring-blue-800" : 
-                  status === "marked" ? "bg-purple-500 text-white" :
-                  status === "answered" ? "bg-green-500 text-white" :
-                  "bg-gray-400 text-white";
+                  status === "current" ? "bg-blue-600 text-white ring-2 ring-blue-800" :
+                    status === "marked" ? "bg-purple-500 text-white" :
+                      status === "answered" ? "bg-green-500 text-white" :
+                        "bg-gray-400 text-white";
 
                 return (
                   <button
@@ -793,7 +873,7 @@ const MathQuizTaking = ({ user }) => {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">ඉතිරි:</span>
-                <span className="font-medium">{quiz. questions.length - answeredCount}</span>
+                <span className="font-medium">{quiz.questions.length - answeredCount}</span>
               </div>
             </div>
           </div>
