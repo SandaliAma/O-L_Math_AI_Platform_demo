@@ -3,6 +3,7 @@ import { SparklesIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 import { recommendationsAPI } from '../../utils/api';
 import { useTranslation } from '../../hooks/useTranslation';
 import XAIExplanation from './XAIExplanation';
+import enTranslations from '../../i18n/locales/en.json';
 
 const AdaptiveRecommendation = ({ user }) => {
   const { t } = useTranslation();
@@ -26,6 +27,17 @@ const AdaptiveRecommendation = ({ user }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getTopicTranslation = (englishTopic) => {
+    if (!englishTopic) return '';
+
+    // Find the key in en.json that matches the englishTopic
+    const topics = enTranslations.topics;
+    const topicKey = Object.keys(topics).find(key => topics[key] === englishTopic);
+
+    // If key found, translate it, otherwise return original
+    return topicKey ? t(`topics.${topicKey}`) : englishTopic;
   };
 
   if (loading) {
@@ -61,12 +73,11 @@ const AdaptiveRecommendation = ({ user }) => {
           <h3 className="font-semibold text-gray-900 mb-2">{goal.title}</h3>
           <p className="text-sm text-gray-600">{goal.description}</p>
           <div className="mt-2">
-            <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-              goal.priority === 'high' ? 'bg-red-100 text-red-800' :
+            <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${goal.priority === 'high' ? 'bg-red-100 text-red-800' :
               goal.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-              'bg-green-100 text-green-800'
-            }`}>
-              {goal.priority} priority
+                'bg-green-100 text-green-800'
+              }`}>
+              {t(`recommendations.priority.${goal.priority}`, goal.priority)} priority
             </span>
           </div>
         </div>
@@ -81,23 +92,23 @@ const AdaptiveRecommendation = ({ user }) => {
             </h4>
             <p className="text-sm text-gray-600 mt-1">{rec.recommended_action}</p>
           </div>
-          {rec.predicted_success_rate && (
+          {/* {rec.predicted_success_rate && (
             <div className="text-right">
               <div className="text-2xl font-bold text-blue-600">
                 {Math.round(rec.predicted_success_rate * 100)}%
               </div>
               <div className="text-xs text-gray-500">Success Rate</div>
             </div>
-          )}
+          )} */}
         </div>
 
         {rec.recommended_topic && (
           <div className="mt-3 pt-3 border-t border-gray-200">
             <span className="text-sm text-gray-600">
-              {t('recommendations.topic', 'Topic')}: 
+              {t('recommendations.topic', 'Topic')}:
             </span>
             <span className="text-sm font-medium text-gray-900 ml-2">
-              {rec.recommended_topic}
+              {getTopicTranslation(rec.recommended_topic)}
             </span>
           </div>
         )}
